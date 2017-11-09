@@ -1,4 +1,5 @@
 from  math import log
+import operator
 
 def calcShannonEnt(dataSet):
     numEntries=len(dataSet)
@@ -33,7 +34,34 @@ def splitDataSet(dataSet,axis,value):
             retDataSet.append(reducedFeatVec)
     return retDataSet
 
+def chooseBestFeatureToSplit(dataSet):
+    numFeatures=len(dataSet[0])-1
+    baseEntropy=calcShannonEnt(dataSet)
+    bestInfoGain=0.0;bestFeature=-1
+    for i in range(numFeatures):
+        featList=[example[i] for example in dataSet]
+        uniqueVals=set(featList)
+        newEntropy=0.0
+        for value in uniqueVals:
+            subDataSet=splitDataSet(dataSet,i,value)
+            prob=len(subDataSet)/float(len(dataSet))
+            newEntropy+=prob*calcShannonEnt(subDataSet)
+        infoGain=baseEntropy-newEntropy
+        if(infoGain>bestInfoGain):
+            bestInfoGain=infoGain
+            bestFeature=i
+    return  bestFeature
+
+def majorityCnt(classList):
+    classCount={}
+    for vote in classList:
+        if vote not in classCount.keys():classCount[vote]=0
+        classCount[vote]+=1
+    sortedClassCount=sorted(classCount.iteritems(),key=operator.itemgetter(1),reversed=True)
+    return  sortedClassCount[0][0]
+
 myDat,labels=createDateSet()
-shannonVal=calcShannonEnt(myDat)
-print (shannonVal)
-print(splitDataSet(myDat,0,0))
+#shannonVal=calcShannonEnt(myDat)
+#print (shannonVal)
+#print(splitDataSet(myDat,0,0))
+print (chooseBestFeatureToSplit(myDat))
