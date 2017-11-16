@@ -27,6 +27,16 @@ def setOfWord2Vec(vocabList,inputSet):
         else:print "the word:%s is not in my Vocabulary!" % word
     return returnVec
 
+#与上一个方法不同，该方法为文档词袋模型，出现改词就会+1
+def bagOfWords2VecMN(vocabList,inputSet):
+    returnVec=[0]*len(vocabList)
+    for word in inputSet:
+        if word in vocabList:
+            returnVec[vocabList.index(word)]+=1
+        return returnVec
+
+
+
 def trainNB0(trainMatrix,trainCategory):
     numTrainDocs=len(trainMatrix)
     numWords=len(trainMatrix[0])
@@ -48,6 +58,15 @@ def trainNB0(trainMatrix,trainCategory):
     p0Vect =log(p0Num / p0Denom)
     return  p0Vect,p1Vect,pAbusive
 
+def classifyNB(vec2Classify,p0Vec,p1Vec,pClass1):
+    p1=sum(vec2Classify*p1Vec)+log(pClass1)
+    p0=sum(vec2Classify*p0Vec)+log(1.0-pClass1)
+    if p1>p0:
+        return 1
+    else:
+        return 0
+
+
 myList,listClasses=loadDataSet()
 
 myVocabList=createVocabList(myList)
@@ -57,8 +76,12 @@ myVocabList=createVocabList(myList)
 trainMat=[]
 for postinDoc in myList:
     trainMat.append(setOfWord2Vec(myVocabList,postinDoc))
-p0v,p1v,pAb=trainNB0(trainMat,listClasses)
+p0v,p1v,pAb=trainNB0(array(trainMat),array(listClasses))
 
-print p0v
-print p1v
-print pAb
+testEntry=['stupid','garbage']
+thisDoc=array(setOfWord2Vec(myVocabList,testEntry))
+print testEntry,'classified as: ',classifyNB(thisDoc,p0v,p1v,pAb)
+
+#print p0v
+#print p1v
+#print pAb
